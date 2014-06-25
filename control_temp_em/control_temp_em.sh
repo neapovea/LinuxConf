@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Usage: control_temp_em.sh 
-# version 0.9
+# version 0.5
+# based on https://github.com/Sepero/temp-throttle/blob/master/temp_throttle.sh
+
 
 cat << EOF
 Author: neapovea (neapovea at gmail)
