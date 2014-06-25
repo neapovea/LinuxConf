@@ -9,6 +9,7 @@ Fichero configuración temperatura Ubuntu portatil emilio
 
 
 * Para ejecutarlo al inicio del sistema:
+
 - hay que copiarlo al directorio home (o donde queramos)
 
 	cp  control_temp_em.sh $HOME/.
@@ -17,8 +18,8 @@ Fichero configuración temperatura Ubuntu portatil emilio
 - Cambiar el fichero de sistemas para que se ejecute al inicio (fichero /etc/rc.local)
 
 	sudo gedit /etc/rc.local
-
-Añadiendo la siguiente linea antes del "exit 0"
+	
+- Añadiendo la siguiente linea antes del "exit 0"
 
 	$HOME/control_temp_em.sh 90
 
