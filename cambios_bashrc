@@ -1,38 +1,4 @@
-#Cambios en el .bashrc del usuario
+#Cambios en el .bashrc del usuario root
+#cambios para que se muestre el con colores distintos
+PS1='\[\033[01;36m\]\u@\[\033[00m\]:\[\033[01;35m\]\W\[\033[00m\]\ # '
 
-
-#cambiado para que solo muestre la ruta actual:
-#PS1='\u@\W:\$'
-PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-
-#cambios para el historico
-HISTSIZE=5000
-HISTFILESIZE=10000
-
-#cambios para que rule el virtualwrapper de python http://rukbottoland.com/blog/tutorial-de-python-virtualenvwrapper/
-export WORKON_HOME=$HOME/workspaces/WorkON
-export VIRTUALENVWRAPPER_HOOK_DIR=$WORKON_HOME/hooks
-source /etc/bash_completion.d/virtualenvwrapper
-
-#cambios para que ponga el idioma es español UTF-8
-LANG="es_ES.UTF-8"
-LANGUAGE="es_ES.UTF-8"
-GDM_LANG="es_ES.UTF-8"
-LANG=es_ES.UTF-8
-LC_CTYPE="es_ES.UTF-8"
-LC_NUMERIC="es_ES.UTF-8"
-LC_TIME="es_ES.UTF-8"
-LC_COLLATE="es_ES.UTF-8"
-LC_MONETARY="es_ES.UTF-8"
-LC_MESSAGES="es_ES.UTF-8"
-LC_PAPER="es_ES.UTF-8"
-LC_NAME="es_ES.UTF-8"
-LC_ADDRESS="es_ES.UTF-8"
-LC_TELEPHONE="es_ES.UTF-8"
-LC_MEASUREMENT="es_ES.UTF-8"
-LC_IDENTIFICATION="es_ES.UTF-8"
-LC_ALL=
-
-#cambios para configurar el Android SDK
-export ANDROID_HOME=/opt/Android/Sdk/
-export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
