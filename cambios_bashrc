@@ -1,4 +1,3 @@
 #Cambios en el .bashrc del usuario root
-#cambios para que se muestre el con colores distintos
+#Cambios para que se muestre el con colores distintos
 PS1='\[\033[01;36m\]\u@\[\033[00m\]:\[\033[01;35m\]\W\[\033[00m\]\ # '
-
