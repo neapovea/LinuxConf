@@ -1,4 +1,4 @@
-UbuntuConf
+Linux Conf
 ==========
 
-Configuración Ubuntu
+Configuración Linux
