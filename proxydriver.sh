@@ -23,6 +23,7 @@
 # changes to configure proxy in apt of debian
 # changes to configure .bashrc on user directory
 # changes to configure firefox, (comment, no are funtional)
+# changes to configure proxy in subversion app.
 
 #
 # To install this file, place it in directory (with +x mod):
@@ -37,6 +38,8 @@ log_tag='proxydriver'
 running_device='/var/run/proxydriver.device'
 proxy_env='/etc/environment'
 apt_proxy='/etc/apt/apt.conf.d/01proxy'
+svn_proxy=''
+
 firefox_profile=''
 
 
@@ -233,7 +236,7 @@ EOF
 
 	# setup system environment variables
 	logger -p user.notice -t $log_tag "update system variable environment configuration file " $proxy_env
-	sed -i '/^\(https\?_proxy\|HTTPS\?_PROXY\|ftp_proxy\|FTP_PROXY\|all_proxy\|ALL_PROXY\|no_proxy\|NO_PROXY\)=/d' "$proxy_env"
+	sed -i '/^\(https\?_proxy\|HTTPS\?_PROXY\|ftp_proxy\|FTP_PROXY\|all_proxy\|ALL_PROXY\|socks_proxy\|SOCKS_PROXY\|no_proxy\|NO_PROXY\)=/d' "$proxy_env"
 
 	if [ "$enabled" == 'true' -a -z "$autoconfig_url" ]
 	then
@@ -243,10 +246,28 @@ EOF
 		echo "HTTPS_PROXY='http://${shell_auth}${https_proxy}:${https_port}/'" >> "$proxy_env"
 		echo "ftp_proxy='http://${shell_auth}${ftp_proxy}:${ftp_port}/'" >> "$proxy_env"
 		echo "FTP_PROXY='http://${shell_auth}${ftp_proxy}:${ftp_port}/'" >> "$proxy_env"
-		echo "all_proxy='socks://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$proxy_env"
-		echo "ALL_PROXY='socks://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$proxy_env"
+		echo "all_proxy='http://${shell_auth}${proxy}:${port}/'" >> "$proxy_env"
+		echo "ALL_PROXY='http://${shell_auth}${proxy}:${port}/'" >> "$proxy_env"
+		echo "socks_proxy='http://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$proxy_env"
+		echo "SOCKS_PROXY='http://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$proxy_env"
 	 	echo "no_proxy='${ignorelist}'" >> "$proxy_env"
 	 	echo "NO_PROXY='${ignorelist}'" >> "$proxy_env"
+	fi
+
+	if [ "$enabled" == 'false' ]
+	then
+		unset http_proxy
+		unset HTTP_PROXY
+		unset https_proxy
+		unset HTTPS_PROXY
+		unset ftp_proxy
+		unset FTP_PROXY
+		unset all_proxy
+		unset ALL_PROXY
+		unset socks_proxy
+		unset SOCKS_PROXY
+	 	unset no_proxy
+	 	unset NO_PROXY
 	fi
 
 
@@ -264,6 +285,9 @@ EOF
 		echo 'Acquire::http::Proxy "http://'${shell_auth}${proxy}:${port}'";' >> "$apt_proxy"
 	fi
 
+
+# io@:~$ git config --global -l
+# git config --global http.proxy http://proxyuser:proxypwd@proxy.server.com:8080
 
 
 	# wait if no users are logged in (up to 5 minutes)
@@ -286,14 +310,49 @@ EOF
 		logger -p user.notice -t $log_tag "setting configuration for '$user'"
 
 
+		#git
+#		logger -p user.notice -t $log_tag "update git configuration to set proxy"
+#		git_proxy=/home/$user/.gitconfig
+#		if [ -f "$git_proxy" ]
+#		then
+#		fi
+# 		git config --global http.proxy http://proxyuser:proxypwd@proxy.server.com:8080
+# 		git config --global --unset http.proxy
+# 		git config --global --get http.proxy
+
+# [http]
+# 	proxy = http://proxyuser:proxypwd@proxy.server.com:8080
 
 
-		bashrc_user_file=/home/$user/.bashrc
+		#subversion
+		logger -p user.notice -t $log_tag "update subversion configuration to set proxy"
+
+		svn_proxy=/home/$user/.subversion/servers
+		if [ -f "$svn_proxy" ]
+		then
+			sed -i '/http-proxy-/d' "$svn_proxy"
+
+			if [ "$enabled" == 'true' ]
+			then
+				echo 'http-proxy-host = ' "${proxy}" >> "$svn_proxy"
+				echo 'http-proxy-port = ' "${port}" >> "$svn_proxy"
+				echo 'http-proxy-exceptions = ' "${ignorelist}" >> "$svn_proxy"
+
+				if [ -n "$login" ]
+				then
+					echo 'http-proxy-username = ' "${login}" >> "$svn_proxy"
+					echo 'http-proxy-password = ' "${pass}" >> "$svn_proxy"
+				fi
+			fi
+
+		fi
 
 		# setup system environment variables
+		bashrc_user_file=/home/$user/.bashrc
 		logger -p user.notice -t $log_tag "update user bashrc configuration file " $bashrc_user_file
 
-		sed -i '/export \(https\?_proxy\|HTTPS\?_PROXY\|ftp_proxy\|FTP_PROXY\|all_proxy\|ALL_PROXY\|no_proxy\|NO_PROXY\)=/d' "$bashrc_user_file"
+		sed -i '/#setup proxy settings/d' "$bashrc_user_file"
+		sed -i '/export \(https\?_proxy\|HTTPS\?_PROXY\|ftp_proxy\|FTP_PROXY\|all_proxy\|ALL_PROXY\|socks_proxy\|SOCKS_PROXY\|no_proxy\|NO_PROXY\)=/d' "$bashrc_user_file"
 
 		if [ "$enabled" == 'true' -a -z "$autoconfig_url" ]
 		then
@@ -305,11 +364,29 @@ EOF
 			echo "export HTTPS_PROXY='http://${shell_auth}${https_proxy}:${https_port}/'" >> "$bashrc_user_file"
 			echo "export ftp_proxy='http://${shell_auth}${ftp_proxy}:${ftp_port}/'" >> "$bashrc_user_file"
 			echo "export FTP_PROXY='http://${shell_auth}${ftp_proxy}:${ftp_port}/'" >> "$bashrc_user_file"
-			echo "export all_proxy='socks://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$bashrc_user_file"
-			echo "export ALL_PROXY='socks://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$bashrc_user_file"
+			echo "export all_proxy='http://${shell_auth}${proxy}:${port}/'" >> "$bashrc_user_file"
+			echo "export ALL_PROXY='http://${shell_auth}${proxy}:${port}/'" >> "$bashrc_user_file"
+			echo "export socks_proxy='http://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$bashrc_user_file"
+			echo "export SOCKS_PROXY='http://${shell_auth}${socks_proxy}:${socks_port}/'" >> "$bashrc_user_file"
 		 	echo "export no_proxy='${ignorelist}'" >> "$bashrc_user_file"
 		 	echo "export NO_PROXY='${ignorelist}'" >> "$bashrc_user_file"
 		fi
+
+		if [ "$enabled" == 'false' ]
+		then
+			unset http_proxy
+			unset HTTP_PROXY
+			unset https_proxy
+			unset HTTPS_PROXY
+			unset ftp_proxy
+			unset FTP_PROXY
+			unset all_proxy
+			unset ALL_PROXY
+			unset socks_proxy
+			unset SOCKS_PROXY
+		 	unset no_proxy
+		 	unset NO_PROXY
+		fi		
 
 	# 	#firefox
 		
