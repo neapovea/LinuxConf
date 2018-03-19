@@ -24,6 +24,8 @@
 # changes to configure .bashrc on user directory
 # changes to configure firefox, (comment, no are funtional)
 # changes to configure proxy in subversion app.
+# changes to configure proxy in docker app.
+
 
 #
 # To install this file, place it in directory (with +x mod):
@@ -39,6 +41,7 @@ running_device='/var/run/proxydriver.device'
 proxy_env='/etc/environment'
 apt_proxy='/etc/apt/apt.conf.d/01proxy'
 svn_proxy=''
+docker_proxy='/etc/init.d/docker'
 
 firefox_profile=''
 
@@ -270,7 +273,42 @@ EOF
 	 	unset NO_PROXY
 	fi
 
+	#docker
+	logger -p user.notice -t $log_tag "update docker configuration to set proxy"
+	if [ -f "$docker_proxy" ]; then
 
+		mkdir -p /etc/systemd/system/docker.service.d
+		
+		docker_proxy_file='/etc/systemd/system/docker.service.d/http-proxy.conf'
+
+		if [ -f "$docker_proxy_file" ]; then
+			sed -i '/[Service]/d' "$docker_proxy_file"
+			sed -i '/\(HTTPS\?_PROXY\|no_proxy\|NO_PROXY\)=/d' "$docker_proxy_file"
+		fi
+
+		if [ "$enabled" == 'true' -a -z "$autoconfig_url" ]
+		then
+			echo "[Service]" >> "$docker_proxy_file"
+			echo 'Environment="HTTP_PROXY=http://'${shell_auth}${proxy}:${port}'/" "HTTPS_PROXY=http://'${shell_auth}${https_proxy}:${https_port}/'"' >> "$docker_proxy_file"			
+		fi
+
+
+		
+#/etc/systemd/system/docker.service.d/http-proxy.conf
+# [Service]
+# Environment="HTTP_PROXY=http://proxy.example.com:80/"
+# Or, if you are behind an HTTPS proxy server, create a file called /etc/systemd/system/docker.service.d/https-proxy.conf that adds the HTTPS_PROXY environment variable:
+# [Service]
+# Environment="HTTPS_PROXY=https://proxy.example.com:443/"
+# If you have internal Docker registries that you need to contact without proxying you can specify them via the NO_PROXY environment variable:
+# [Service]    
+# Environment="HTTP_PROXY=http://proxy.example.com:80/" "NO_PROXY=localhost,127.0.0.1,docker-registry.somecorporation.com"
+# Or, if you are behind an HTTPS proxy server:
+# [Service]    
+# Environment="HTTPS_PROXY=https://proxy.example.com:443/" "NO_PROXY=localhost,127.0.0.1,docker-registry.somecorporation.com"
+
+
+	fi
 
 	#apt
 	logger -p user.notice -t $log_tag "update apt configuration to set proxy"
