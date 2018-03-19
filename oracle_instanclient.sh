@@ -10,6 +10,8 @@ sudo alien -i oracle-instantclient12.2-sqlplus-12.2.0.1.0-1.x86_64.rpm
 sudo alien -i oracle-instantclient12.2-tools-12.2.0.1.0-1.x86_64.rpm 
 
 #variables de entorno para ORACLE
-export ORACLE_HOME=/usr/lib/oracle/12.2/client64
-export LD_LIBRARY_PATH=/usr/lib/oracle/12.2/client64/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} 
-export PATH=$PATH:$ORACLE_HOME/bin
+echo '#variables de entorno ORACLE' >> $HOME/.bashrc
+echo 'export ORACLE_HOME=/usr/lib/oracle/12.2/client64'  >> $HOME/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/lib/oracle/12.2/client64/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH} '  >> $HOME/.bashrc
+echo 'export PATH=$PATH:$ORACLE_HOME/bin'  >> $HOME/.bashrc
+
