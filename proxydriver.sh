@@ -25,6 +25,7 @@
 # changes to configure firefox, (comment, no are funtional)
 # changes to configure proxy in subversion app.
 # changes to configure proxy in docker app.
+# include config to JetBrains IDE (need config idea.properties to set path of IDE)
 
 
 #
@@ -361,29 +362,38 @@ EOF
 # [http]
 # 	proxy = http://proxyuser:proxypwd@proxy.server.com:8080
 
+		ficheroProxySettingJetBrains='proxy.settings.xml'
 
-		#subversion
-		logger -p user.notice -t $log_tag "update subversion configuration to set proxy"
+		for tblTMP in "IntelliJIdea" "PyCharm" "AndroidStudio"
+		do
 
-		svn_proxy=/home/$user/.subversion/servers
-		if [ -f "$svn_proxy" ]
-		then
-			sed -i '/http-proxy-/d' "$svn_proxy"
+			logger -p user.notice -t $log_tag 'update '$tblTMP' configuration to set proxy'
 
-			if [ "$enabled" == 'true' ]
+			rutaConfigruacionJetBrains=/home/$user/.$tblTMP/config/options/
+
+			ficheroProxyTmp=$rutaConfigruacionJetBrains$ficheroProxySettingJetBrains
+			
+			if [ -d "$rutaConfigruacionJetBrains" ]
 			then
-				echo 'http-proxy-host = ' "${proxy}" >> "$svn_proxy"
-				echo 'http-proxy-port = ' "${port}" >> "$svn_proxy"
-				echo 'http-proxy-exceptions = ' "${ignorelist}" >> "$svn_proxy"
 
-				if [ -n "$login" ]
+				if [ -f "$rutaConfigruacionJetBrains" ]
 				then
-					echo 'http-proxy-username = ' "${login}" >> "$svn_proxy"
-					echo 'http-proxy-password = ' "${pass}" >> "$svn_proxy"
+					rm $ficheroProxyTmp
+				fi
+
+				if [ "$enabled" == 'true' ]
+				then
+					echo '<application>' >> "$ficheroProxyTmp"
+					echo '  <component name="HttpConfigurable">' >> "$ficheroProxyTmp"
+					echo '    <option name="USE_HTTP_PROXY" value="true" />' >> "$ficheroProxyTmp"
+					echo '    <option name="PROXY_HOST" value="'${proxy}'" />' >> "$ficheroProxyTmp"
+					echo '    <option name="PROXY_PORT" value="'${port}'" />' >> "$ficheroProxyTmp"
+					echo '  </component>' >> "$ficheroProxyTmp"
+					echo '</application>' >> "$ficheroProxyTmp"
 				fi
 			fi
+		done
 
-		fi
 
 		# setup system environment variables
 		bashrc_user_file=/home/$user/.bashrc
