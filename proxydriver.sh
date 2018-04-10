@@ -375,14 +375,14 @@ EOF
 
 			ficheroProxyTmp=$rutaConfigruacionJetBrains$ficheroProxySettingJetBrains
 			
+#			echo $ficheroProxyTmp
+
 			if [ -d "$rutaConfigruacionJetBrains" ]
 			then
-
-				if [ -f "$rutaConfigruacionJetBrains" ]
+				if [ -f "$ficheroProxyTmp" ]
 				then
 					rm $ficheroProxyTmp
 				fi
-
 				if [ "$enabled" == 'true' ]
 				then
 					echo '<application>' >> "$ficheroProxyTmp"
