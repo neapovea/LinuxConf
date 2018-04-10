@@ -25,7 +25,8 @@
 # changes to configure firefox, (comment, no are funtional)
 # changes to configure proxy in subversion app.
 # changes to configure proxy in docker app.
-# include config to JetBrains IDE (need config idea.properties to set path of IDE)
+# include config to JetBrains IDE (need config idea.properties to set path of IDE and put this in /home/user/.PATH_APP),
+#  In my case this path are: IntelliJIdea, PyCharm, AndroidStudio, IdeaIC, DataGrip
 
 
 #
@@ -364,7 +365,8 @@ EOF
 
 		ficheroProxySettingJetBrains='proxy.settings.xml'
 
-		for tblTMP in "IntelliJIdea" "PyCharm" "AndroidStudio"
+# configure app to have config dir in /home/user/xxxx and put config dirs names in for loop 
+		for tblTMP in "IntelliJIdea" "PyCharm" "AndroidStudio" "IdeaIC" "DataGrip"
 		do
 
 			logger -p user.notice -t $log_tag 'update '$tblTMP' configuration to set proxy'
